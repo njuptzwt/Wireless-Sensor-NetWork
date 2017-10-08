@@ -1,14 +1,16 @@
 function [Detectionrate,falsealarmrate,result]= IDPCAandDPCAFAR(Mu,dmax,FPC,Mediandmax,correct,false,control)
 Fcount=0;
 Dcount=0;
+falsealarmrate=0;
 test=ones(correct+false,3);%测试数据由正常数据和异常数据构成
 result=ones(1,correct+false);%保证数据为1（没有错误的时候）
 X=[0.3 0.35 0.4];%均值集合
-%检验正常数据
+%检验正常数据,误报率用平均值
+for k=1:100
 for i=1:correct
     for j=1:3
         mu=X(randperm(3,1));
-        Sigma=0.041-0.001*control;%误报率，不然非常小
+        Sigma=0.041-0.001*control;%误报率，不然非常小,加入噪声的大小
         test(i,j)=normrnd(mu,Sigma);
     end
     %计算到第一主成分的距离
@@ -24,8 +26,9 @@ for i=1:correct
         Fcount=Fcount+1;
     end
 end
-falsealarmrate=(Fcount/correct)*100
-
+falsealarmrate=(Fcount/correct)*100;
+end
+falsealarmrate=falsealarmrate/100
 %检测某个属性异常的数据
 for i=correct+1:correct+false
     for j=1:2
